@@ -86,13 +86,6 @@
       z-index: 1;
     }
     img, video, canvas, svg { max-width: 100%; max-height: 100%; }
-    .deck-controls {
-      position: fixed;
-      left: 50%;
-      bottom: 22px;
-      transform: translateX(-50%);
-      z-index: 1000;
-    }
     @media print {
       html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
       .deck-viewport { position: static; overflow: visible; background: #fff; }
@@ -110,6 +103,7 @@
       }
       .slide:last-child { break-after: auto; page-break-after: auto; }
       .deck-controls, .modal-overlay, .slide-chrome { display: none !important; }
+      .deck-nav-bar { display: none !important; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -898,81 +892,124 @@
       pointer-events: none;
     }
     .slide-counter {
-      top: 24px;
-      right: 28px;
-      font-family: var(--font-display);
-      font-size: 18px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.5);
-      background: rgba(0,0,0,0.35);
-      padding: 8px 16px;
-      border-radius: 999px;
-      pointer-events: none;
+      display: none; /* counter shown in deck-nav-bar */
     }
-    .nav-dots {
+    .deck-nav-bar {
       position: fixed;
-      right: 28px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      left: 50%;
+      top: 20px;
+      bottom: auto;
+      transform: translateX(-50%);
       z-index: 1000;
-    }
-    .nav-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.35);
-      background: transparent;
-      cursor: pointer;
-      padding: 0;
-      transition: all 0.25s;
-    }
-    .nav-dot.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      transform: scale(1.3);
-    }
-    .deck-controls {
       display: flex;
       align-items: center;
-      gap: 16px;
-      background: rgba(26, 31, 46, 0.85);
-      backdrop-filter: blur(12px);
-      padding: 12px 20px;
+      gap: 20px;
+      background: rgba(26, 31, 46, 0.92);
+      backdrop-filter: blur(14px);
+      padding: 10px 16px 10px 10px;
       border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.4);
       pointer-events: auto;
     }
-    .deck-controls button {
-      width: 44px;
-      height: 44px;
+    .deck-nav-bar .nav-btn {
+      width: 48px;
+      height: 48px;
       border: none;
       border-radius: 50%;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.12);
       color: #fff;
-      font-size: 20px;
+      font-size: 22px;
+      line-height: 1;
       cursor: pointer;
-      transition: background 0.2s;
+      flex-shrink: 0;
+      transition: background 0.2s, transform 0.2s;
     }
-    .deck-controls button:hover { background: rgba(255,255,255,0.2); }
-    .deck-controls button:disabled { opacity: 0.3; cursor: default; }
-    .deck-controls .progress-text {
-      font-size: 15px;
+    .deck-nav-bar .nav-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.22);
+      transform: scale(1.05);
+    }
+    .deck-nav-bar .nav-btn:disabled {
+      opacity: 0.25;
+      cursor: default;
+    }
+    .nav-dots {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding: 0 8px;
+    }
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255,255,255,0.28);
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition:
+        width 0.4s var(--ease-out),
+        height 0.4s var(--ease-out),
+        background 0.35s var(--ease-out),
+        opacity 0.35s var(--ease-out),
+        box-shadow 0.35s var(--ease-out);
+    }
+    .nav-dot:hover:not(.active) {
+      background: rgba(255,255,255,0.5);
+      transform: scale(1.15);
+    }
+    .nav-dot.active {
+      width: 28px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(196, 92, 38, 0.55);
+      animation: dotActivate 0.45s var(--ease-out);
+    }
+    .nav-dot.next-hint {
+      animation: dotNextPulse 1.8s ease-in-out infinite;
+    }
+    .nav-dot.active.next-hint {
+      animation: dotActivate 0.45s var(--ease-out), dotActivePulse 2s ease-in-out infinite 0.45s;
+    }
+    @keyframes dotActivate {
+      0% { transform: scale(0.6); opacity: 0.5; }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes dotNextPulse {
+      0%, 100% {
+        background: rgba(255,255,255,0.28);
+        box-shadow: none;
+      }
+      50% {
+        background: rgba(255,255,255,0.55);
+        box-shadow: 0 0 8px rgba(255,255,255,0.25);
+      }
+    }
+    @keyframes dotActivePulse {
+      0%, 100% { box-shadow: 0 0 12px rgba(196, 92, 38, 0.55); }
+      50% { box-shadow: 0 0 20px rgba(196, 92, 38, 0.85); }
+    }
+    .nav-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 180px;
+    }
+    .nav-center .progress-text {
+      font-size: 13px;
       font-weight: 600;
-      color: rgba(255,255,255,0.7);
-      min-width: 80px;
-      text-align: center;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em;
+      line-height: 1;
     }
-    .hint-bar {
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 14px;
-      color: rgba(255,255,255,0.4);
-      z-index: 999;
-      pointer-events: none;
+    .nav-center .hint-text {
+      font-size: 11px;
+      color: rgba(255,255,255,0.32);
+      white-space: nowrap;
+      line-height: 1;
     }
 
     /* Two-column content helper */
@@ -1033,8 +1070,11 @@
             <p class="subtitle">2026年上半期 — 目標・行動計画・達成状況の総括<br>First Half 2026 — Goals, Action Plans & Progress Summary</p>
           </div>
           <div class="title-footer reveal">
-            <div class="author">ライナ　ラブ / Laina Luv</div>
-            <div class="period">Period: 2026年 上半期</div>
+            <div>
+              <div class="author">ライナ　ラブ / Laina Luv</div>
+              <div class="period" style="margin-top:8px;">面談日: 2026/07/02</div>
+            </div>
+            <div class="period">対象年度: 2026年 上半期</div>
           </div>
         </div>
       </section>
@@ -1053,7 +1093,7 @@
             <div class="policy-grid reveal">
               <div class="policy-card">
                 <div class="level">経営方針</div>
-                <p>企業成長に応じて一人ひとりが進化していく — 素直に学び、自らの考えと行動を変えていく</p>
+                <p>【企業成長に応じて一人ひとりが進化していく】<br>どんな立場や職種だろうと役割を変化させ、素直に学んで自らの考えと行動を変えていく</p>
               </div>
               <div class="policy-card">
                 <div class="level">事業部方針</div>
@@ -1070,7 +1110,7 @@
                 <span class="tag">定量 40pt</span>
                 <h3>実践的なクラウド開発スキルを習得</h3>
                 <p>AWS Solutions Architect Associate 資格取得によるクラウドスキル習得</p>
-                <div class="points">進捗: コース30% / 模擬試験50%</div>
+                <div class="points">進捗: コース60% / 模擬試験75%</div>
                 <div class="cta">詳細を見る →</div>
               </div>
               <div class="goal-card reveal" data-goal="2" data-jump="5">
@@ -1117,16 +1157,16 @@
                 <div style="margin-top:20px;">
                   <div class="progress-row">
                     <span class="progress-label">Udemy コース完了率</span>
-                    <div class="progress-track"><div class="progress-fill aws" style="width:30%"></div></div>
-                    <span class="progress-value">30%</span>
+                    <div class="progress-track"><div class="progress-fill aws" style="width:60%"></div></div>
+                    <span class="progress-value">60%</span>
                   </div>
                   <div class="progress-row">
                     <span class="progress-label">模擬試験 正答率</span>
-                    <div class="progress-track"><div class="progress-fill exam" style="width:50%"></div></div>
-                    <span class="progress-value">50%</span>
+                    <div class="progress-track"><div class="progress-fill exam" style="width:75%"></div></div>
+                    <span class="progress-value">75%</span>
                   </div>
                 </div>
-                <p style="margin-top:20px;font-size:17px;color:var(--ink-light);">目標: 模擬試験正答率 80%以上 → 5月試験受験</p>
+                <p style="margin-top:20px;font-size:17px;color:var(--ink-light);">下半期にコース完了・資格取得を目指す。コスト最適化・スケーラビリティ設計の即時判断は継続課題。</p>
               </div>
               <button class="btn-modal" data-modal="modal-goal1-plan">アクションプランを表示</button>
             </div>
@@ -1139,8 +1179,10 @@
                   <li>EC2 SA Level — アーキテクチャ設計パターン</li>
                   <li>EC2 Instance Storage — EBS, EFS, Instance Store</li>
                   <li>ELB & ASG — 高可用性・スケーラビリティ</li>
+                  <li>Route 53 — DNS・ルーティング</li>
+                  <li>S3 — オブジェクトストレージ（ハンズオン）</li>
                 </ul>
-                <p style="margin-top:20px;font-size:16px;color:var(--ink-light);">※ Section 1〜8 完了（コース全体の約30%）</p>
+                <p style="margin-top:20px;font-size:16px;color:var(--ink-light);">EC2、ELB、ASG、Route 53、S3 等をハンズオンで理解。サービス選択・組み合わせの即時判断は継続学習中。</p>
               </div>
             </div>
           </div>
@@ -1266,7 +1308,7 @@
               <h2>チームの生産性向上</h2>
             </div>
             <div class="meta">
-              <span class="status-pill partial">移行中 Transitioning</span>
+              <span class="status-pill partial">保留 On Hold</span>
             </div>
           </div>
           <div class="slide-body two-col">
@@ -1287,7 +1329,7 @@
             <div class="reveal">
               <div class="info-box" style="height:100%;display:flex;flex-direction:column;">
                 <h4>現在の状況 / Current Status</h4>
-                <p style="margin-top:16px;font-size:19px;line-height:1.65;">ドキュメントはまだ修正中ですが、ほとんどのドキュメントが <strong>NotebookLM</strong> に移行されています。このドキュメントが実際に使用されることはない可能性があります。</p>
+                <p style="margin-top:16px;font-size:19px;line-height:1.65;">ドキュメントは修正を重ねており、現状は下記の形になっています。ただし参照機会は人それぞれ異なり、同じ問題・操作が発生する機会も少ない状況です。今後すべての資料が <strong>NotebookLM</strong> へ移行される見込みのため、従来ドキュメントの活用は限定的。Cursor IDE でも多くの問題を解決できるため、一旦この状況に留まる方針です。</p>
                 <div style="margin-top:auto;padding-top:28px;">
                   <p style="font-size:17px;color:var(--ink-light);margin-bottom:16px;">関連リソース:</p>
                   <button class="btn-modal" data-modal="modal-goal3" style="background:var(--team);">詳細・Notionリンク</button>
@@ -1314,7 +1356,9 @@
               <h3>Behavior</h3>
               <p class="ideal">自分の業務の課題を見つけて解決を図ろうとすることが習慣化できている。</p>
               <div class="achievement-label">できたこと / Achievements</div>
-              <p class="achievement-text">反復的なタスク向けのカスタムルールとスキルを作成。サブエージェントとCursorのマルチタスク機能を使用してタスクをエージェントに委任している。</p>
+              <p class="achievement-text">過去6ヶ月間、開発中に繰り返し発生する問題やボトルネックを特定し、MCP・スキル・ルールを活用してピアレビューを経たカスタムソリューションを構築。実装プロセスの自動化・簡素化と業務可視化のためのドキュメント整備を実施。</p>
+              <div class="achievement-label" style="margin-top:20px;color:var(--warn);">できなかったこと</div>
+              <p class="achievement-text" style="font-size:17px;color:var(--ink-muted);">タスクごとのトークン効率化に改善余地あり。AIワークフロー自動化は下半期の重点取り組み。</p>
               <div class="points-badge">AI駆動開発の専門スキル習得 → ワークフローボトルネックの自動化</div>
             </div>
             <div class="comp-panel sub reveal">
@@ -1322,7 +1366,9 @@
               <h3>Experience</h3>
               <p class="ideal">担当領域の一通りの業務経験を有し、基本的な判断や対応ができる。</p>
               <div class="achievement-label">できたこと / Achievements</div>
-              <p class="achievement-text">改善できる点を積極的に探している。関与プロジェクトや他プロジェクトの開発システムの理解を深め、技術的議論への参加を継続。</p>
+              <p class="achievement-text">WordPress管理画面向けカスタムソリューション開発を通じ、システム構造・データ更新フローを理解。CSV→HTML変換ツール導入により、管理者が開発者を介さず店舗情報を更新可能に。導入期間を5〜7日から1〜2日へ短縮。</p>
+              <div class="achievement-label" style="margin-top:20px;color:var(--warn);">できなかったこと</div>
+              <p class="achievement-text" style="font-size:17px;color:var(--ink-muted);">担当システムは理解を深めたが、他サービスへの開発関与機会が限られ、構成・実装の十分な理解には至らず。下半期は他サービス開発にも積極参加予定。</p>
               <div class="points-badge">開発者として多様なサービスへの技術的理解を養う</div>
             </div>
           </div>
@@ -1343,8 +1389,8 @@
             <div class="summary-stats reveal">
               <div class="stat-box">
                 <div class="stat-label">Goal 1 — AWS</div>
-                <div class="stat-value" style="color:var(--aws);">30%</div>
-                <div class="stat-note">コース完了 / 模擬試験 50%</div>
+                <div class="stat-value" style="color:var(--aws);">60%</div>
+                <div class="stat-note">コース完了 / 模擬試験 75%</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Goal 2 — AI Dev</div>
@@ -1353,8 +1399,8 @@
               </div>
               <div class="stat-box">
                 <div class="stat-label">Goal 3 — Docs</div>
-                <div class="stat-value" style="color:var(--team);">移行中</div>
-                <div class="stat-note">NotebookLM へ移行</div>
+                <div class="stat-value" style="color:var(--team);">保留</div>
+                <div class="stat-note">NotebookLM移行・参照機会限定</div>
               </div>
               <div class="stat-box">
                 <div class="stat-label">Competency</div>
@@ -1380,13 +1426,15 @@
 
   <!-- Navigation -->
   <div class="slide-chrome slide-counter" id="slideCounter">1 / 9</div>
-  <nav class="nav-dots" id="navDots" aria-label="Slide navigation"></nav>
-  <div class="hint-bar">← → キーで移動 · カードをクリックで詳細 · Escで閉じる</div>
-  <div class="deck-controls">
-    <button id="prevBtn" aria-label="Previous slide">‹</button>
-    <span class="progress-text" id="progressText">1 / 9</span>
-    <button id="nextBtn" aria-label="Next slide">›</button>
-  </div>
+  <nav class="deck-nav-bar" aria-label="Presentation navigation">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous slide">‹</button>
+    <div class="nav-center">
+      <nav class="nav-dots" id="navDots" aria-label="Slide dots"></nav>
+      <span class="progress-text" id="progressText">1 / 9</span>
+      <span class="hint-text">← → キー · カードクリックで詳細</span>
+    </div>
+    <button class="nav-btn" id="nextBtn" aria-label="Next slide">›</button>
+  </nav>
 
   <!-- MODALS -->
   <div class="modal-overlay" id="modalOverlay">
@@ -1446,7 +1494,7 @@
   </template>
 
   <template id="modal-goal3">
-    <p>開発環境ドキュメントは修正中ですが、ほとんどがNotebookLMに移行されています。従来のNotionドキュメントは今後使用されない可能性があります。</p>
+    <p>ドキュメントは修正を重ねており、現状は下記の形になっています。参照機会は人それぞれ異なり、同じ問題・操作が発生する機会も少ない状況です。今後すべての資料が NotebookLM へ移行される見込みのため、従来ドキュメントの活用は限定的。Cursor IDE でも多くの問題を解決できるため、一旦この状況に留まる方針です。</p>
     <a class="modal-link-btn" href="https://www.notion.so/2-366c1691584980cda2a6d7ebccf7432a" target="_blank" rel="noopener">Notion参照 ↗</a>
   </template>
 
@@ -1561,7 +1609,13 @@
           slide.classList.toggle('active', active);
           slide.classList.toggle('visible', active);
         });
-        this.dots.forEach((dot, i) => dot.classList.toggle('active', i === this.currentSlide));
+        const nextIndex = this.currentSlide + 1;
+        this.dots.forEach((dot) => dot.classList.remove('active', 'next-hint'));
+        void document.getElementById('navDots').offsetHeight;
+        this.dots.forEach((dot, i) => {
+          if (i === this.currentSlide) dot.classList.add('active');
+          if (i === nextIndex && nextIndex < this.slides.length) dot.classList.add('next-hint');
+        });
         const label = `${this.currentSlide + 1} / ${this.slides.length}`;
         document.getElementById('slideCounter').textContent = label;
         document.getElementById('progressText').textContent = label;
